@@ -32,6 +32,11 @@ Open http://localhost:8000
 
 Or with the Railway CLI from this folder: `railway login`, `railway init`, `railway up`, then `railway domain`.
 
+## CI/CD
+
+- **CI** (`.github/workflows/ci.yml`, GitHub Actions) runs on every push and pull request: regenerates the pages and fails if `site/` is out of date, checks every link and image, builds the Docker image and smoke-tests every page in the running container.
+- **CD** is Railway's GitHub integration: each push to `main` redeploys automatically. Turn on **Wait for CI** in the Railway service settings so a deploy only goes out after CI passes.
+
 ## Enquiry form
 
 The site is static, so the enquiry form opens the visitor's email app with the details pre-filled to salesinfo.isepl@gmail.com (cc isepl.india@gmail.com). A form backend can be added later.

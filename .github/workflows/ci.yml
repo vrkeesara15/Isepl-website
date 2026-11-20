@@ -1,0 +1,39 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  check:
+    name: Build and check site
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Regenerate pages
+        run: python3 build/build.py
+
+      - name: Generated pages are committed
+        run: git diff --exit-code -- site || (echo "::error::site/ is out of date. Run 'python3 build/build.py' and commit." && exit 1)
+
+      - name: Check links and assets
+        run: python3 tools/check_site.py
+
+      - name: Build Docker image
+        run: docker build -t isepl-site .
+
+      - name: Smoke test container
+        run: |
+          docker run -d --name site -e PORT=8080 -p 8080:8080 isepl-site
+          for i in $(seq 1 20); do curl -fs http://localhost:8080/ >/dev/null && break; sleep 1; done
+          for p in / /air.html /fire.html /water.html /earth.html /sky.html /contact.html /assets/css/styles.css; do
+            code=$(curl -s -o /dev/null -w '%{http_code}' "http://localhost:8080$p"); echo "$p -> $code"; [ "$code" = 200 ] || exit 1
+          done
+          code=$(curl -s -o /dev/null -w '%{http_code}' http://localhost:8080/does-not-exist); echo "404 page -> $code"; [ "$code" = 404 ] || exit 1
+          docker logs site
