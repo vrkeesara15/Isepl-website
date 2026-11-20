@@ -32,7 +32,7 @@ jobs:
         run: |
           docker run -d --name site -e PORT=8080 -p 8080:8080 isepl-site
           for i in $(seq 1 20); do curl -fs http://localhost:8080/ >/dev/null && break; sleep 1; done
-          for p in / /air.html /fire.html /water.html /earth.html /sky.html /contact.html /assets/css/styles.css; do
+          for p in / /healthz /air.html /fire.html /water.html /earth.html /sky.html /contact.html /assets/css/styles.css; do
             code=$(curl -s -o /dev/null -w '%{http_code}' "http://localhost:8080$p"); echo "$p -> $code"; [ "$code" = 200 ] || exit 1
           done
           code=$(curl -s -o /dev/null -w '%{http_code}' http://localhost:8080/does-not-exist); echo "404 page -> $code"; [ "$code" = 404 ] || exit 1

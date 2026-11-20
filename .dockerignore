@@ -1,0 +1,10 @@
+.git
+.github
+.serena
+build
+tools
+deploy
+docs
+**/__pycache__
+**/.DS_Store
+*.md

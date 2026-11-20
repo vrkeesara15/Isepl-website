@@ -2,12 +2,27 @@
 	admin off
 }
 
+# Listens on $PORT (set by Railway and Cloud Run), defaults to 8080.
 :{$PORT:8080} {
 	root * /srv
 	encode zstd gzip
+
+	# Health check for Railway / Cloud Run / load balancers
+	respond /healthz "ok" 200
+
+	header {
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "SAMEORIGIN"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		Permissions-Policy "camera=(), microphone=(), geolocation=()"
+		-Server
+	}
+	header /assets/* Cache-Control "public, max-age=604800"
+	header *.html Cache-Control "public, max-age=300"
+
 	try_files {path} {path}.html {path}/index.html
 	file_server
-	header /assets/* Cache-Control "public, max-age=604800"
+
 	handle_errors {
 		rewrite * /404.html
 		file_server

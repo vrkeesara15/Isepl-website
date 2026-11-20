@@ -6,7 +6,10 @@ Static marketing website for Integra Sustainable Enterprises Pvt. Ltd. (ISEPL), 
 
 - `site/` – the published website (HTML, CSS, JS, images). This is what gets served.
 - `build/` – small Python generator that writes the HTML pages in `site/` (shared header, footer and page content live here).
-- `Dockerfile`, `Caddyfile`, `railway.json` – deployment on Railway (Caddy static file server on `$PORT`).
+- `Dockerfile`, `Caddyfile` – production container (Caddy static file server on `$PORT`, `/healthz` health check, security headers).
+- `railway.json` – Railway deployment config.
+- `cloudbuild.yaml`, `deploy/gcp-deploy.sh`, `docs/DEPLOY-GCP.md` – Google Cloud Run hosting (see **Deploy to GCP** below).
+- `Makefile` – shortcuts: `make serve`, `make check`, `make docker-run`, `make deploy-railway`, `make deploy-gcp PROJECT=...`.
 
 ## Edit content
 
@@ -19,7 +22,7 @@ python3 build/build.py
 ## Preview locally
 
 ```
-cd site && python3 -m http.server 8000
+make serve            # or: cd site && python3 -m http.server 8000
 ```
 
 Open http://localhost:8000
@@ -31,6 +34,14 @@ Open http://localhost:8000
 3. Settings → Networking → Generate Domain to get a public `*.up.railway.app` link (a custom domain can be added later).
 
 Or with the Railway CLI from this folder: `railway login`, `railway init`, `railway up`, then `railway domain`.
+
+## Deploy to GCP
+
+Full guide: [docs/DEPLOY-GCP.md](docs/DEPLOY-GCP.md). Short version:
+
+```
+./deploy/gcp-deploy.sh <gcp-project-id> asia-south1 isepl-website
+```
 
 ## CI/CD
 
